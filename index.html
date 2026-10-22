@@ -210,8 +210,18 @@ function validate(){
 }
 
 // ====== KIRIM ======
-const run = (fn, ...args) => new Promise((res, rej) =>
-  google.script.run.withSuccessHandler(res).withFailureHandler(e=>rej(new Error(e && e.message || e)))[fn](...args));
+// Ganti dengan URL web app Apps Script (berakhiran /exec)
+const API_URL = 'PASTE_URL_WEB_APP_DI_SINI';
+const run = async (fn, ...args) => {
+  const r = await fetch(API_URL, {
+    method: 'POST',
+    headers: {'Content-Type': 'text/plain;charset=utf-8'},
+    body: JSON.stringify({action: fn, args: args})
+  });
+  const j = await r.json();
+  if (!j.ok) throw new Error(j.error || 'Permintaan gagal');
+  return j.result;
+};
 
 const toB64 = file => new Promise((res, rej)=>{
   const r = new FileReader();
